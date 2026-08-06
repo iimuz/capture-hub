@@ -10,9 +10,9 @@
 - DriftVoiceはAndroidからObsidian Daily Noteへ直接追記する点で近いが、利用可能性とWear OS・Even G2対応に課題がある。
 - VoiceNote Captureと G2sidian は技術的な参考になるが、現時点では初期段階であり、日常利用の基盤として採用するにはリスクが高い。
 - Voice MD、ReWriteなどは音声認識、LLM整形、中間データ保存の参考になるが、Obsidianを起動する必要があり、今回の出発点となった入力摩擦を解消しない。
-- Even G2では、公式SDKを介してG2の4マイクアレイから16 kHz・16-bit・monoのPCM音声を取得できる。WebView内で書き起こし処理を行うことも可能である。cite
-- 一方、Even Hub Pluginから任意の自作Androidアプリへデータを直接渡す公式ネイティブブリッジは確認できない。Even Hub PluginはEven Realities App内のWebViewで動作するためである。cite
-- サーバーを極力使わずにAndroid側へデータを渡す場合、Androidアプリ内にlocalhost HTTPエンドポイントを設け、Even Hub Pluginから送信する方式が最も目的に合う。ただし、Even Hubの本番private buildでlocalhost通信とHTTP許可が成立するか、最初に実機PoCが必要である。cite
+- Even G2では、公式SDKを介してG2の4マイクアレイから16 kHz・16-bit・monoのPCM音声を取得できる。WebView内で書き起こし処理を行うことも可能である。
+- 一方、Even Hub Pluginから任意の自作Androidアプリへデータを直接渡す公式ネイティブブリッジは確認できない。Even Hub PluginはEven Realities App内のWebViewで動作するためである。
+- サーバーを極力使わずにAndroid側へデータを渡す場合、Androidアプリ内にlocalhost HTTPエンドポイントを設け、Even Hub Pluginから送信する方式が最も目的に合う。ただし、Even Hubの本番private buildでlocalhost通信とHTTP許可が成立するか、最初に実機PoCが必要である。
 
 推奨方針は、ノートアプリを新規開発するのではなく、Androidを中心とする書き込み専用の「Capture Hub」を構築することである。最初の技術検証は、**Even G2音声取得 → Even Hub WebView → Android localhostへのPOST**に限定する。
 
@@ -53,7 +53,7 @@
 
 ## 3.1 DriftVoice
 
-DriftVoiceはAndroid上でワンタップ録音を開始し、音声を書き起こしてObsidian Daily Noteへ直接追記する点で、Android単体の要件に最も近い。ロック画面、Quick Settings、Google Assistantから起動でき、Daily Noteのファイル名形式と追記テンプレートを設定できると説明されている。cite
+DriftVoiceはAndroid上でワンタップ録音を開始し、音声を書き起こしてObsidian Daily Noteへ直接追記する点で、Android単体の要件に最も近い。ロック画面、Quick Settings、Google Assistantから起動でき、Daily Noteのファイル名形式と追記テンプレートを設定できると説明されている。
 
 ただし、現時点で一般ユーザーが容易に試せる状態か不明瞭であり、クローズドテスト中である可能性がある。また、公開情報上ではWear OS、Even G2、原音・raw transcript・整形結果を統一して保存する仕組みは確認できない。
 
@@ -61,9 +61,9 @@ DriftVoiceはAndroid上でワンタップ録音を開始し、音声を書き起
 
 ## 3.2 VoiceNote Capture
 
-VoiceNote Captureは、Wear OSのコンプリケーションから録音し、音声をWear Data Layer経由でAndroidへ転送し、自前の文字起こし環境を介してMarkdownをObsidian Vaultへ保存するOSSである。Wear OSからAndroidへの転送、クラウンによる停止、ハプティクス、実機上のバッテリー挙動などが確認されている。cite
+VoiceNote Captureは、Wear OSのコンプリケーションから録音し、音声をWear Data Layer経由でAndroidへ転送し、自前の文字起こし環境を介してMarkdownをObsidian Vaultへ保存するOSSである。Wear OSからAndroidへの転送、クラウンによる停止、ハプティクス、実機上のバッテリー挙動などが確認されている。
 
-一方で、README上でもPhase 1 prototypeとされており、日常的なデータ記録の基盤として無条件に採用できる成熟度ではない。また、ライセンスはPolyForm Noncommercial 1.0.0であり、将来公開・商用化する場合には直接流用しにくい。cite
+一方で、README上でもPhase 1 prototypeとされており、日常的なデータ記録の基盤として無条件に採用できる成熟度ではない。また、ライセンスはPolyForm Noncommercial 1.0.0であり、将来公開・商用化する場合には直接流用しにくい。
 
 利用対象というより、以下の参考実装として位置付けるのが適切である。
 
@@ -74,9 +74,9 @@ VoiceNote Captureは、Wear OSのコンプリケーションから録音し、�
 
 ## 3.3 G2sidian
 
-G2sidian は、Even G2から音声でObsidianのDaily NoteまたはInboxへ追記するOSSである。閲覧中ノートへの追記、Markdownの直接読み書き、atomic append、競合確認などを実装している。cite
+G2sidian は、Even G2から音声でObsidianのDaily NoteまたはInboxへ追記するOSSである。閲覧中ノートへの追記、Markdownの直接読み書き、atomic append、競合確認などを実装している。
 
-今回のEven G2要件に最も近いものの、公開時点でコミット数が少なく、非常に初期のプロジェクトである。また、AndroidローカルのVaultへ直接書く構成ではなく、自分のコンピューター上にPythonバックエンドを立て、Tailscale経由でアクセスする。cite
+今回のEven G2要件に最も近いものの、公開時点でコミット数が少なく、非常に初期のプロジェクトである。また、AndroidローカルのVaultへ直接書く構成ではなく、自分のコンピューター上にPythonバックエンドを立て、Tailscale経由でアクセスする。
 
 したがって、完成品として導入するのではなく、次の観点でコードを参照する価値がある。
 
@@ -87,27 +87,27 @@ G2sidian は、Even G2から音声でObsidianのDaily NoteまたはInboxへ追�
 
 ## 3.4 Voice MD、ReWrite、Whisper Plugin
 
-Voice MDは、録音停止後に音声をローカル保存し、文字起こし結果をDaily Noteへ時刻見出し付きで追記できる。Mobile First Daily Interfaceに近い出力形式を実現しており、通信失敗後の再試行にも配慮されている。cite
+Voice MDは、録音停止後に音声をローカル保存し、文字起こし結果をDaily Noteへ時刻見出し付きで追記できる。Mobile First Daily Interfaceに近い出力形式を実現しており、通信失敗後の再試行にも配慮されている。
 
-ReWriteは、録音、文字起こし、LLMによる文章の整理、テンプレート適用、音声ファイル保存をまとめて扱う。クラウドAPIだけでなく、whisper.cppとローカルのOpenAI互換LLMを組み合わせた端末内処理も可能である。cite
+ReWriteは、録音、文字起こし、LLMによる文章の整理、テンプレート適用、音声ファイル保存をまとめて扱う。クラウドAPIだけでなく、whisper.cppとローカルのOpenAI互換LLMを組み合わせた端末内処理も可能である。
 
-Whisper Pluginも、録音・音声ファイル保存・文字起こし・LLM後処理を提供し、複数のWhisper互換APIやOpenAI互換エンドポイントを利用できる。cite
+Whisper Pluginも、録音・音声ファイル保存・文字起こし・LLM後処理を提供し、複数のWhisper互換APIやOpenAI互換エンドポイントを利用できる。
 
 ただし、これらはいずれもObsidian Pluginとして動作し、記録時にObsidianを起動する必要がある。今回の問題は音声認識や整形の品質ではなく、Obsidianを開く操作そのものであるため、完成形としては適合しない。
 
 ## 3.5 Transcribable
 
-TranscribableはAndroidとWear OSに対応する音声文字起こしアプリである。Wear OS側で入力した結果をAndroidへ転送し、Storage Access Frameworkを介して任意の保存先を扱える。cite
+TranscribableはAndroidとWear OSに対応する音声文字起こしアプリである。Wear OS側で入力した結果をAndroidへ転送し、Storage Access Frameworkを介して任意の保存先を扱える。
 
 Wear OSとAndroidの連携体験を比較する対象としては有用だが、Obsidian Daily Noteへの定型追記、LLM整形、Even G2連携を一体化したものではない。
 
 ## 3.6 Fleeting Notes、Voicenotes、Obsidian Voice
 
-Fleeting NotesはAndroid、Web、ブラウザ拡張などから入力し、Obsidianへ同期できる。ローカルMarkdown同期、オフライン利用、E2EE、ウィジェットを提供する。cite
+Fleeting NotesはAndroid、Web、ブラウザ拡張などから入力し、Obsidianへ同期できる。ローカルMarkdown同期、オフライン利用、E2EE、ウィジェットを提供する。
 
-VoicenotesはAndroidを含む複数プラットフォームとWatchに対応し、文字起こし、AI要約、アクション抽出、Obsidian Pluginによる同期、オプションの音声ファイル保存を提供する。cite
+VoicenotesはAndroidを含む複数プラットフォームとWatchに対応し、文字起こし、AI要約、アクション抽出、Obsidian Pluginによる同期、オプションの音声ファイル保存を提供する。
 
-Obsidian VoiceはAndroidから録音し、Whisperによる文字起こしとAI整形を行い、Obsidian Vaultへ同期する。既存ノートを読まない書き込み専用のアクセスモデルを掲げている。cite
+Obsidian VoiceはAndroidから録音し、Whisperによる文字起こしとAI整形を行い、Obsidian Vaultへ同期する。既存ノートを読まない書き込み専用のアクセスモデルを掲げている。
 
 これらは入力摩擦を下げる既存例として参考になるが、独自クラウドや独自データベースが中心であること、Daily Noteへの直接append、複数デバイスの統一キュー、Even G2対応という点で今回の構想と異なる。
 
@@ -134,9 +134,9 @@ Obsidian VoiceはAndroidから録音し、Whisperによる文字起こしとAI�
 
 ## 5.1 音声入力
 
-Even G2の公式SDKは、G2の4マイクアレイまたはスマートフォンのマイクを録音開始時に選択できる。G2マイクを選択する場合は`AudioInputSource.Glasses`、スマートフォンを選択する場合は`AudioInputSource.Phone`を指定する。cite
+Even G2の公式SDKは、G2の4マイクアレイまたはスマートフォンのマイクを録音開始時に選択できる。G2マイクを選択する場合は`AudioInputSource.Glasses`、スマートフォンを選択する場合は`AudioInputSource.Phone`を指定する。
 
-音声はEven Hub Pluginのイベントコールバックに`audioEvent`として届く。データ形式は次のとおりである。cite
+音声はEven Hub Pluginのイベントコールバックに`audioEvent`として届く。データ形式は次のとおりである。
 
 - PCM
 - 16 kHz
@@ -168,7 +168,7 @@ bridge.onEvenHubEvent((event) => {
 2. 録音終了後にWAV化して文字起こしAPIへ送る。
 3. Androidアプリへ転送し、Android側でオンデバイスまたはクラウドの文字起こしを実行する。
 
-Even Hub Pluginは通常のWebアプリと同様に`fetch()`、XMLHttpRequest、WebSocketを利用できる。ただし、宛先originを`app.json`のnetwork whitelistへ登録し、API側もCORSに対応する必要がある。cite
+Even Hub Pluginは通常のWebアプリと同様に`fetch()`、XMLHttpRequest、WebSocketを利用できる。ただし、宛先originを`app.json`のnetwork whitelistへ登録し、API側もCORSに対応する必要がある。
 
 技術的には書き起こし可能である。ただし、WebViewへ直接クラウドAPIキーを埋め込むと抽出される可能性がある。個人用private buildでユーザーがキーを入力する運用は可能だが、強い秘密管理ではない。公開アプリで安全に運用するなら、API proxyまたは端末内処理が必要になる。
 
@@ -176,7 +176,7 @@ Even Hub Pluginは通常のWebアプリと同様に`fetch()`、XMLHttpRequest、
 
 ## 6. Even Hub WebViewとAndroidアプリの関係
 
-Even Hub Pluginは、Even Realities AppがホストするWebView内で動作する。AndroidではChromium WebViewが使われ、Even Realities App自体はFlutterで構成されている。G2は表示と入力を担当し、アプリロジックはスマートフォン上のWebViewで動作する。cite
+Even Hub Pluginは、Even Realities AppがホストするWebView内で動作する。AndroidではChromium WebViewが使われ、Even Realities App自体はFlutterで構成されている。G2は表示と入力を担当し、アプリロジックはスマートフォン上のWebViewで動作する。
 
 ```text
 Even G2
@@ -188,7 +188,7 @@ Even Realities App
 Even Hub Plugin
 ```
 
-Even Hub SDKのJavaScript Bridgeは、WebView、Even Realities App、G2間の通信に使われる。公開ドキュメント上、自作Androidアプリへ任意データを渡すためのBinder、Intent、ContentProvider、Android Service向けの汎用ブリッジは確認できない。cite
+Even Hub SDKのJavaScript Bridgeは、WebView、Even Realities App、G2間の通信に使われる。公開ドキュメント上、自作Androidアプリへ任意データを渡すためのBinder、Intent、ContentProvider、Android Service向けの汎用ブリッジは確認できない。
 
 このため、次の直接接続は公式SDKの標準経路としては利用できない。
 
@@ -251,7 +251,7 @@ Android Capture App
 - Androidのバックグラウンド制限やDoze下でlocalhostサービスを維持できるか。
 - Foreground Serviceを使用する場合、常駐通知を許容できるか。
 
-公式ドキュメントでは、ネットワークアクセスに宛先originのwhitelist登録が必要であり、本番ではHTTPSが基本、plain HTTPは主にローカル開発向けと説明されている。そのため、localhost方式がprivate buildで許可されるかは、文書だけで断定せず実機PoCで確認すべきである。cite
+公式ドキュメントでは、ネットワークアクセスに宛先originのwhitelist登録が必要であり、本番ではHTTPSが基本、plain HTTPは主にローカル開発向けと説明されている。そのため、localhost方式がprivate buildで許可されるかは、文書だけで断定せず実機PoCで確認すべきである。
 
 ## 7.3 Custom SchemeまたはAndroid App Link
 
@@ -277,7 +277,7 @@ WebViewからHTTPSのRelay APIへ送信し、Androidアプリがpushまたはpol
 
 Android Capture Appは、Storage Access Frameworkを使用してユーザーからVaultまたはDaily Noteフォルダへのアクセス権を取得する。権限を永続化し、日付に基づいて対象Markdownファイルを決定してappendする。
 
-Obsidianを起動せずMarkdownファイルへ直接追記する運用は、MacroDroidやAutomateを使った既存事例でも実現されている。cite
+Obsidianを起動せずMarkdownファイルへ直接追記する運用は、MacroDroidやAutomateを使った既存事例でも実現されている。
 
 推奨する出力形式は、Mobile First Daily Interfaceと互換になるよう設定可能にする。
 
@@ -354,7 +354,7 @@ WRITTEN
 
 失敗時は`FAILED_TRANSCRIPTION`、`FAILED_FORMATTING`、`FAILED_WRITE`などを記録し、AndroidのWorkManagerで再試行する。
 
-Even Hub WebView側でも、Androidへ転送が完了するまではPCMチャンクとcapture IDをIndexedDBへ保存する。AndroidではWebViewがバックグラウンド化またはメモリ不足で停止される可能性があり、音声取得もWebView停止時に終了するため、メモリだけに状態を置かない設計が必要である。cite
+Even Hub WebView側でも、Androidへ転送が完了するまではPCMチャンクとcapture IDをIndexedDBへ保存する。AndroidではWebViewがバックグラウンド化またはメモリ不足で停止される可能性があり、音声取得もWebView停止時に終了するため、メモリだけに状態を置かない設計が必要である。
 
 ---
 
@@ -431,7 +431,7 @@ Android Capture Hub
 
 ### 11.1 バックグラウンド動作
 
-AndroidではEven Realities App内のChromium WebViewがメモリ圧迫などで停止・回収される可能性がある。WebViewが停止すると`audioControl(true, ...)`による音声取得も停止する。公式ドキュメントは、重要な状態を早期に永続化し、再起動時に復元することを求めている。cite
+AndroidではEven Realities App内のChromium WebViewがメモリ圧迫などで停止・回収される可能性がある。WebViewが停止すると`audioControl(true, ...)`による音声取得も停止する。公式ドキュメントは、重要な状態を早期に永続化し、再起動時に復元することを求めている。
 
 したがって、完全な常時待機・完全バックグラウンド録音を前提にしてはならない。G2上でプラグインを開いて録音を開始し、録音中はEven Realities AppのWebViewが動作している状態を維持する必要がある。
 
@@ -442,7 +442,7 @@ Even Hub Pluginからの通信には、以下の両方が必要である。
 1. `app.json`のnetwork whitelistによるEven側の許可
 2. 接続先が返す適切なCORSヘッダー
 
-whitelistはCORSを回避しない。localhostのAndroidサービスも、必要なCORSレスポンスとプリフライト処理を実装する必要がある。cite
+whitelistはCORSを回避しない。localhostのAndroidサービスも、必要なCORSレスポンスとプリフライト処理を実装する必要がある。
 
 ### 11.3 APIキー管理
 
@@ -570,7 +570,7 @@ PoC段階ではLLM整形やWear OSまで実装しない。既に実用性が確�
 - Mobile First Daily Interfaceと互換性のある形式でDaily Noteへ直接appendする。
 - 記録専用に徹し、閲覧・編集・知識管理はObsidianへ任せる。
 
-Even G2については、音声取得とWebView内での書き起こしは実現可能である。cite 一方、Even Hub Pluginから自作Androidアプリへの公式な直接ブリッジは確認できないため、サーバーを避けるにはlocalhost連携の成立性が鍵となる。cite
+Even G2については、音声取得とWebView内での書き起こしは実現可能である。一方、Even Hub Pluginから自作Androidアプリへの公式な直接ブリッジは確認できないため、サーバーを避けるにはlocalhost連携の成立性が鍵となる。
 
 したがって、次の一手は明確である。
 
@@ -582,11 +582,11 @@ Even G2については、音声取得とWebView内での書き起こしは実現
 
 ## 参考情報
 
-- Even Hub Device APIs: G2およびPhoneマイクの選択、PCM音声イベント形式。cite
-- Even Hub Architecture: Even Realities App、WebView、G2間の実行・通信モデル。cite
-- Even Hub Networking: network whitelist、CORS、HTTPS要件。cite
-- Even Hub Background & Lifecycle: Android WebViewの停止と音声取得への影響。cite
-- G2sidian: Even G2とObsidianの音声キャプチャ実装例。cite
-- VoiceNote Capture: Wear OSとAndroidの音声転送実装例。cite
-- DriftVoice: AndroidからObsidian Daily Noteへの音声追記の製品例。cite
-- Voice MD / ReWrite: 音声保存、文字起こし、LLM整形、Daily Note出力の実装例。cite
+- Even Hub Device APIs: G2およびPhoneマイクの選択、PCM音声イベント形式。
+- Even Hub Architecture: Even Realities App、WebView、G2間の実行・通信モデル。
+- Even Hub Networking: network whitelist、CORS、HTTPS要件。
+- Even Hub Background & Lifecycle: Android WebViewの停止と音声取得への影響。
+- G2sidian: Even G2とObsidianの音声キャプチャ実装例。
+- VoiceNote Capture: Wear OSとAndroidの音声転送実装例。
+- DriftVoice: AndroidからObsidian Daily Noteへの音声追記の製品例。
+- Voice MD / ReWrite: 音声保存、文字起こし、LLM整形、Daily Note出力の実装例。
