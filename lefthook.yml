@@ -4,7 +4,6 @@ pre-commit:
       skip:
         - rebase
         - merge
-        - revert
       group:
         parallel: true
         jobs:
@@ -28,7 +27,6 @@ pre-commit:
       skip:
         - rebase
         - merge
-        - revert
       group:
         parallel: true
         jobs:
