@@ -20,6 +20,16 @@ Plugin から Android localhost への連携成立性を検証する (Phase 0)�
 
 ツール管理には [mise](https://mise.jdx.dev/) を利用する。
 
+### セットアップ
+
 ```sh
 mise install
+mise exec -- lefthook install
 ```
+
+### lint / format
+
+- `mise run format` で全ファイルを整形する
+- `mise run lint` で整形崩れと Markdown の記法を検査する
+- pre-commit フックが staged ファイルを自動整形し、Markdown を検査する
+- 除外対象: docs/superpowers/、docs/tmp/、.superpowers/、docs/reports/

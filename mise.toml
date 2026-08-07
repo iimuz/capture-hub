@@ -1,4 +1,101 @@
 [tools]
+node = "24.18.0"
+"npm:prettier" = "3.9.5"
+"npm:markdownlint-cli2" = "0.23.1"
+taplo = "0.10.0"
+lefthook = "2.1.10"
 
 [env]
 _.file = ".env"
+
+[tasks."format:md"]
+description = "prettier で Markdown を整形"
+usage = '''
+arg "[files]" var=#true
+'''
+run = '''
+files=${usage_files:-$(git ls-files -co --exclude-standard '*.md' | tr '\n' ' ')}
+if [ -z "$files" ]; then exit 0; fi
+eval "set -- $files"
+prettier --write --no-error-on-unmatched-pattern "$@"
+'''
+
+[tasks."format:yaml"]
+description = "prettier で YAML を整形"
+usage = '''
+arg "[files]" var=#true
+'''
+run = '''
+files=${usage_files:-$(git ls-files -co --exclude-standard '*.yml' '*.yaml' | tr '\n' ' ')}
+if [ -z "$files" ]; then exit 0; fi
+eval "set -- $files"
+prettier --write --no-error-on-unmatched-pattern "$@"
+'''
+
+[tasks."format:json"]
+description = "prettier で JSON を整形"
+usage = '''
+arg "[files]" var=#true
+'''
+run = '''
+files=${usage_files:-$(git ls-files -co --exclude-standard '*.json' | tr '\n' ' ')}
+if [ -z "$files" ]; then exit 0; fi
+eval "set -- $files"
+prettier --write --no-error-on-unmatched-pattern "$@"
+'''
+
+[tasks."format:toml"]
+description = "taplo で TOML を整形"
+usage = '''
+arg "[files]" var=#true
+'''
+run = '''
+files=${usage_files:-$(git ls-files -co --exclude-standard '*.toml' | tr '\n' ' ')}
+if [ -z "$files" ]; then exit 0; fi
+eval "set -- $files"
+taplo format "$@"
+'''
+
+[tasks.format]
+description = "全ファイルを整形"
+depends = ["format:md", "format:yaml", "format:json", "format:toml"]
+
+[tasks."lint:md"]
+description = "markdownlint-cli2 で Markdown を検査"
+usage = '''
+arg "[files]" var=#true
+'''
+run = '''
+files=${usage_files:-$(git ls-files -co --exclude-standard '*.md' | tr '\n' ' ')}
+if [ -z "$files" ]; then exit 0; fi
+eval "set -- $files"
+markdownlint-cli2 "$@"
+'''
+
+[tasks."lint:prettier"]
+description = "prettier で format 差分を検査"
+usage = '''
+arg "[files]" var=#true
+'''
+run = '''
+files=${usage_files:-$(git ls-files -co --exclude-standard '*.md' '*.yml' '*.yaml' '*.json' | tr '\n' ' ')}
+if [ -z "$files" ]; then exit 0; fi
+eval "set -- $files"
+prettier --check --no-error-on-unmatched-pattern "$@"
+'''
+
+[tasks."lint:toml"]
+description = "taplo で TOML の format 差分を検査"
+usage = '''
+arg "[files]" var=#true
+'''
+run = '''
+files=${usage_files:-$(git ls-files -co --exclude-standard '*.toml' | tr '\n' ' ')}
+if [ -z "$files" ]; then exit 0; fi
+eval "set -- $files"
+taplo format --check "$@"
+'''
+
+[tasks.lint]
+description = "全ファイルを検査"
+depends = ["lint:md", "lint:prettier", "lint:toml"]

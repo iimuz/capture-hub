@@ -1,0 +1,35 @@
+pre-commit:
+  jobs:
+    - name: format
+      skip:
+        - rebase
+        - merge
+      group:
+        parallel: true
+        jobs:
+          - name: markdown
+            glob: "*.md"
+            stage_fixed: true
+            run: mise run format:md {staged_files}
+          - name: yaml
+            glob: "*.{yml,yaml}"
+            stage_fixed: true
+            run: mise run format:yaml {staged_files}
+          - name: json
+            glob: "*.json"
+            stage_fixed: true
+            run: mise run format:json {staged_files}
+          - name: toml
+            glob: "*.toml"
+            stage_fixed: true
+            run: mise run format:toml {staged_files}
+    - name: lint
+      skip:
+        - rebase
+        - merge
+      group:
+        parallel: true
+        jobs:
+          - name: markdownlint
+            glob: "*.md"
+            run: mise run lint:md {staged_files}
