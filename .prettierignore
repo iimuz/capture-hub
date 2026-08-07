@@ -1,0 +1,6 @@
+docs/superpowers/
+docs/tmp/
+.superpowers/
+# docs/reports/ はメンテナンス対象外 (CLAUDE.md) のため format しない
+docs/reports/
+temp/

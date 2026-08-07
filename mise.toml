@@ -1,4 +1,9 @@
 [tools]
+node = "24.18.0"
+"npm:prettier" = "3.9.5"
+"npm:markdownlint-cli2" = "0.23.1"
+taplo = "0.10.0"
+lefthook = "2.1.10"
 
 [env]
 _.file = ".env"
