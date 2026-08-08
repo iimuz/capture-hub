@@ -33,3 +33,11 @@ mise exec -- lefthook install
 - `mise run lint` で整形崩れと Markdown の記法を検査する
 - pre-commit フックが staged ファイルを自動整形し、Markdown を検査する
 - 除外対象: docs/superpowers/、docs/tmp/、.superpowers/、docs/reports/
+
+### Renovate
+
+`.github/workflows/renovate.yml` の動作には `RENOVATE_TOKEN` リポジトリ secret の
+登録が必要である。`renovate.json` で `helpers:pinGitHubActionDigests` を使用して
+おり、`.github/workflows/` 配下への push が発生するため、トークンには
+workflow 書き込み権限が必要である
+(classic PAT: `workflow` スコープ、fine-grained PAT: "Workflows: Read and write")。
