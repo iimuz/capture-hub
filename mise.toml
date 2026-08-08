@@ -4,6 +4,8 @@ node = "24.18.0"
 "npm:markdownlint-cli2" = "0.23.1"
 taplo = "0.10.0"
 lefthook = "2.1.10"
+java = "temurin-21.0.12+8.0.LTS"
+ktlint = "1.8.0"
 
 [env]
 _.file = ".env"
