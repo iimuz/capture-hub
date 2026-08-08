@@ -23,6 +23,10 @@ pre-commit:
             glob: "*.toml"
             stage_fixed: true
             run: mise run format:toml {staged_files}
+          - name: kotlin
+            glob: "*.{kt,kts}"
+            stage_fixed: true
+            run: mise run format:kotlin {staged_files}
     - name: lint
       skip:
         - rebase
@@ -33,3 +37,6 @@ pre-commit:
           - name: markdownlint
             glob: "*.md"
             run: mise run lint:md {staged_files}
+          - name: ktlint
+            glob: "*.{kt,kts}"
+            run: mise run lint:kotlin {staged_files}

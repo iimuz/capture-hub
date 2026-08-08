@@ -58,9 +58,27 @@ eval "set -- $files"
 taplo format "$@"
 '''
 
+[tasks."format:kotlin"]
+description = "ktlint で Kotlin を整形"
+usage = '''
+arg "[files]" var=#true
+'''
+run = '''
+files=${usage_files:-$(git ls-files -co --exclude-standard '*.kt' '*.kts' | tr '\n' ' ')}
+if [ -z "$files" ]; then exit 0; fi
+eval "set -- $files"
+ktlint --format "$@"
+'''
+
 [tasks.format]
 description = "全ファイルを整形"
-depends = ["format:md", "format:yaml", "format:json", "format:toml"]
+depends = [
+  "format:md",
+  "format:yaml",
+  "format:json",
+  "format:toml",
+  "format:kotlin",
+]
 
 [tasks."lint:md"]
 description = "markdownlint-cli2 で Markdown を検査"
@@ -98,6 +116,18 @@ eval "set -- $files"
 taplo format --check "$@"
 '''
 
+[tasks."lint:kotlin"]
+description = "ktlint で Kotlin を検査"
+usage = '''
+arg "[files]" var=#true
+'''
+run = '''
+files=${usage_files:-$(git ls-files -co --exclude-standard '*.kt' '*.kts' | tr '\n' ' ')}
+if [ -z "$files" ]; then exit 0; fi
+eval "set -- $files"
+ktlint "$@"
+'''
+
 [tasks.lint]
 description = "全ファイルを検査"
-depends = ["lint:md", "lint:prettier", "lint:toml"]
+depends = ["lint:md", "lint:prettier", "lint:toml", "lint:kotlin"]
