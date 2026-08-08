@@ -8,3 +8,10 @@
 docs/superpowers/
 docs/tmp/
 temp/
+
+# === android
+android/.gradle/
+android/.kotlin/
+android/build/
+android/app/build/
+android/local.properties
