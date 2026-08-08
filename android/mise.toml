@@ -1,0 +1,27 @@
+[tasks.setup]
+description = "Android 開発環境を初期化"
+run = '''
+if [ -f local.properties ]; then exit 0; fi
+sdk_dir="${ANDROID_HOME:-$HOME/Library/Android/sdk}"
+if [ ! -d "$sdk_dir" ]; then
+  echo "Android SDK が見つからない: $sdk_dir" >&2
+  echo "Android SDK を導入するか、android/local.properties に sdk.dir を手動で設定する" >&2
+  exit 1
+fi
+echo "sdk.dir=$sdk_dir" > local.properties
+'''
+
+[tasks.build]
+description = "Android アプリをビルド"
+run = "./gradlew assembleDebug"
+
+[tasks.test]
+description = "Android アプリの単体テストを実行"
+run = "./gradlew test"
+
+[tasks.clean]
+description = "Android のビルド生成物と開発環境設定を削除"
+run = '''
+rm -rf .gradle .kotlin build app/build
+rm -f local.properties
+'''

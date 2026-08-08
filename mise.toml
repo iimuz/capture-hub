@@ -1,3 +1,5 @@
+monorepo_root = true
+
 [tools]
 node = "24.18.0"
 "npm:prettier" = "3.9.5"
@@ -131,3 +133,30 @@ ktlint "$@"
 [tasks.lint]
 description = "全ファイルを検査"
 depends = ["lint:md", "lint:prettier", "lint:toml", "lint:kotlin"]
+
+[tasks.setup]
+description = "開発環境を初期化"
+depends = ["//android:setup"]
+run = '''
+# git worktree ではルートリポジトリ側の lefthook 設定を使うためスキップ
+if [ -d ".git" ]; then
+  lefthook install
+fi
+'''
+
+[tasks.clean]
+description = "開発環境設定とビルド生成物を削除"
+depends = ["//android:clean"]
+run = '''
+if [ -d ".git" ]; then
+  lefthook uninstall
+fi
+'''
+
+[tasks.build]
+description = "全コンポーネントをビルド"
+depends = ["//android:build"]
+
+[tasks.test]
+description = "全コンポーネントのテストを実行"
+depends = ["//android:test"]
