@@ -1,5 +1,8 @@
 monorepo_root = true
 
+[monorepo]
+config_roots = ["android"]
+
 [tools]
 node = "24.18.0"
 "npm:prettier" = "3.9.5"
