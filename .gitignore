@@ -8,12 +8,3 @@
 docs/superpowers/
 docs/tmp/
 temp/
-
-# === android
-android/.gradle/
-android/.kotlin/
-android/**/build/
-android/local.properties
-android/.idea/
-android/*.iml
-android/**/*.iml
