@@ -9,8 +9,6 @@ node = "24.18.0"
 "npm:markdownlint-cli2" = "0.23.1"
 taplo = "0.10.0"
 lefthook = "2.1.10"
-java = "temurin-21.0.12+8.0.LTS"
-ktlint = "1.8.0"
 
 [env]
 _.file = ".env"
@@ -63,18 +61,6 @@ eval "set -- $files"
 taplo format "$@"
 '''
 
-[tasks."format:kotlin"]
-description = "ktlint で Kotlin を整形"
-usage = '''
-arg "[files]" var=#true
-'''
-run = '''
-files=${usage_files:-$(git ls-files -co --exclude-standard '*.kt' '*.kts' | tr '\n' ' ')}
-if [ -z "$files" ]; then exit 0; fi
-eval "set -- $files"
-ktlint --format "$@"
-'''
-
 [tasks.format]
 description = "全ファイルを整形"
 depends = [
@@ -82,7 +68,7 @@ depends = [
   "format:yaml",
   "format:json",
   "format:toml",
-  "format:kotlin",
+  "//android:format",
 ]
 
 [tasks."lint:md"]
@@ -121,21 +107,9 @@ eval "set -- $files"
 taplo format --check "$@"
 '''
 
-[tasks."lint:kotlin"]
-description = "ktlint で Kotlin を検査"
-usage = '''
-arg "[files]" var=#true
-'''
-run = '''
-files=${usage_files:-$(git ls-files -co --exclude-standard '*.kt' '*.kts' | tr '\n' ' ')}
-if [ -z "$files" ]; then exit 0; fi
-eval "set -- $files"
-ktlint "$@"
-'''
-
 [tasks.lint]
 description = "全ファイルを検査"
-depends = ["lint:md", "lint:prettier", "lint:toml", "lint:kotlin"]
+depends = ["lint:md", "lint:prettier", "lint:toml", "//android:lint"]
 
 [tasks.setup]
 description = "開発環境を初期化"

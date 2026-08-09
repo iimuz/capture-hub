@@ -24,9 +24,10 @@ pre-commit:
             stage_fixed: true
             run: mise run format:toml {staged_files}
           - name: kotlin
+            root: android/
             glob: "*.{kt,kts}"
             stage_fixed: true
-            run: mise run format:kotlin {staged_files}
+            run: mise run //android:format:kotlin {staged_files}
     - name: lint
       skip:
         - rebase
@@ -38,5 +39,6 @@ pre-commit:
             glob: "*.md"
             run: mise run lint:md {staged_files}
           - name: ktlint
+            root: android/
             glob: "*.{kt,kts}"
-            run: mise run lint:kotlin {staged_files}
+            run: mise run //android:lint:kotlin {staged_files}
