@@ -14,7 +14,7 @@ lefthook = "2.1.10"
 _.file = ".env"
 
 [tasks."format:md"]
-description = "prettier で Markdown を整形"
+description = "Format Markdown files with prettier"
 usage = '''
 arg "[files]" var=#true
 '''
@@ -26,7 +26,7 @@ prettier --write --no-error-on-unmatched-pattern "$@"
 '''
 
 [tasks."format:yaml"]
-description = "prettier で YAML を整形"
+description = "Format YAML files with prettier"
 usage = '''
 arg "[files]" var=#true
 '''
@@ -38,7 +38,7 @@ prettier --write --no-error-on-unmatched-pattern "$@"
 '''
 
 [tasks."format:json"]
-description = "prettier で JSON を整形"
+description = "Format JSON files with prettier"
 usage = '''
 arg "[files]" var=#true
 '''
@@ -50,7 +50,7 @@ prettier --write --no-error-on-unmatched-pattern "$@"
 '''
 
 [tasks."format:toml"]
-description = "taplo で TOML を整形"
+description = "Format TOML files with taplo"
 usage = '''
 arg "[files]" var=#true
 '''
@@ -62,7 +62,7 @@ taplo format "$@"
 '''
 
 [tasks.format]
-description = "全ファイルを整形"
+description = "Format all files"
 depends = [
   "format:md",
   "format:yaml",
@@ -72,7 +72,7 @@ depends = [
 ]
 
 [tasks."lint:md"]
-description = "markdownlint-cli2 で Markdown を検査"
+description = "Check Markdown files with markdownlint-cli2"
 usage = '''
 arg "[files]" var=#true
 '''
@@ -84,7 +84,7 @@ markdownlint-cli2 "$@"
 '''
 
 [tasks."lint:prettier"]
-description = "prettier で format 差分を検査"
+description = "Check formatting differences with prettier"
 usage = '''
 arg "[files]" var=#true
 '''
@@ -96,7 +96,7 @@ prettier --check --no-error-on-unmatched-pattern "$@"
 '''
 
 [tasks."lint:toml"]
-description = "taplo で TOML の format 差分を検査"
+description = "Check TOML formatting differences with taplo"
 usage = '''
 arg "[files]" var=#true
 '''
@@ -108,21 +108,21 @@ taplo format --check "$@"
 '''
 
 [tasks.lint]
-description = "全ファイルを検査"
+description = "Check all files"
 depends = ["lint:md", "lint:prettier", "lint:toml", "//android:lint"]
 
 [tasks.setup]
-description = "開発環境を初期化"
+description = "Set up the development environment"
+depends_post = ["//android:setup"]
 run = '''
-mise run //android:setup || echo "警告: Android SDK のセットアップをスキップした (local.properties は未生成)" >&2
-# git worktree ではルートリポジトリ側の lefthook 設定を使うためスキップ
+# Skipped in a git worktree; the root repository's lefthook configuration is used there
 if [ -d ".git" ]; then
   lefthook install
 fi
 '''
 
 [tasks.clean]
-description = "開発環境設定とビルド生成物を削除"
+description = "Remove the development environment configuration and build artifacts"
 depends = ["//android:clean"]
 run = '''
 if [ -d ".git" ]; then
@@ -131,9 +131,9 @@ fi
 '''
 
 [tasks.build]
-description = "全コンポーネントをビルド"
+description = "Build all components"
 depends = ["//android:build"]
 
 [tasks.test]
-description = "全コンポーネントのテストを実行"
+description = "Run tests for all components"
 depends = ["//android:test"]

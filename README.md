@@ -40,7 +40,7 @@ mise run setup
 Android 固有のタスクは `android/mise.toml` に定義し、root の
 `mise run build` / `mise run test` / `mise run clean` から呼び出す。
 
-JDK と ktlint は mise が管理する。Android SDK は mise の管理外であり、
+JDK と ktlint は `android/mise.toml` の `[tools]` で管理する。Android SDK は mise の管理外であり、
 Android Studio などで導入した SDK を `android/local.properties` から
 参照する。`local.properties` は `mise run setup` が生成する
 (`ANDROID_HOME` があればそれを優先し、無ければ既定の
