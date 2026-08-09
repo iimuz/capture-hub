@@ -139,8 +139,8 @@ depends = ["lint:md", "lint:prettier", "lint:toml", "lint:kotlin"]
 
 [tasks.setup]
 description = "開発環境を初期化"
-depends = ["//android:setup"]
 run = '''
+mise run //android:setup || echo "警告: Android SDK のセットアップをスキップした (local.properties は未生成)" >&2
 # git worktree ではルートリポジトリ側の lefthook 設定を使うためスキップ
 if [ -d ".git" ]; then
   lefthook install

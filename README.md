@@ -31,7 +31,7 @@ mise run setup
 
 - `mise run format` で全ファイルを整形する
 - `mise run lint` で整形崩れと Markdown の記法、Kotlin のコードスタイルを検査する
-- pre-commit フックが staged ファイルを自動整形し、Markdown を検査する
+- pre-commit フックが staged ファイルを自動整形し、Markdown の記法、Kotlin のコードスタイルを検査する
 - 除外対象: docs/superpowers/、docs/tmp/、.superpowers/、docs/reports/
 
 ### Android アプリ
@@ -50,6 +50,9 @@ Android Studio などで導入した SDK を `android/local.properties` から
 - ビルド: `mise run build`
 - テスト: `mise run test`
 - 生成物の削除: `mise run clean`
+
+`mise run build` / `mise run test` は `local.properties` が無ければ内部で
+自動生成するため、事前に `mise run setup` を実行する必要はない。
 
 ### Renovate
 

@@ -13,10 +13,12 @@ echo "sdk.dir=$sdk_dir" > local.properties
 
 [tasks.build]
 description = "Android アプリをビルド"
+depends = ["setup"]
 run = "./gradlew assembleDebug"
 
 [tasks.test]
 description = "Android アプリの単体テストを実行"
+depends = ["setup"]
 run = "./gradlew test"
 
 [tasks.clean]

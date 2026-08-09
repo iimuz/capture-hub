@@ -12,6 +12,8 @@ temp/
 # === android
 android/.gradle/
 android/.kotlin/
-android/build/
-android/app/build/
+android/**/build/
 android/local.properties
+android/.idea/
+android/*.iml
+android/**/*.iml
