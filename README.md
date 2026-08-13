@@ -47,7 +47,7 @@ Android Studio などで導入した SDK を `android/local.properties` から
 `~/Library/Android/sdk` を使う)。SDK の場所が異なる場合は
 `sdk.dir` を手動で変更する。
 
-- ビルド: `mise run build`
+- ビルド (test / Android Lint を含む): `mise run build`
 - テスト: `mise run test`
 - 生成物の削除: `mise run clean`
 
