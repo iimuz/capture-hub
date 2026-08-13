@@ -16,9 +16,9 @@ echo "sdk.dir=$sdk_dir" > local.properties
 '''
 
 [tasks.build]
-description = "Build the Android app"
+description = "Build, test, and lint the Android app"
 depends = ["setup"]
-run = "./gradlew assembleDebug"
+run = "./gradlew build"
 
 [tasks.test]
 description = "Run the Android unit tests"
