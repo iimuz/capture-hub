@@ -61,3 +61,11 @@ Android Studio などで導入した SDK を `android/local.properties` から
 おり、`.github/workflows/` 配下への push が発生するため、トークンには
 workflow 書き込み権限が必要である
 (classic PAT: `workflow` スコープ、fine-grained PAT: "Workflows: Read and write")。
+
+Gradle 本体の更新 PR では `distributionUrl` のみ更新され、
+`distributionSha256Sum` は更新されないため、チェックサム不一致で CI が失敗する。
+その場合は新しいバージョンの SHA256 値を
+`https://services.gradle.org/distributions/gradle-<version>-bin.zip.sha256`
+から取得して `distributionSha256Sum` を手動で更新し、あわせて
+`cd android && ./gradlew wrapper --gradle-version <version> --gradle-distribution-sha256-sum <SHA256 値>`
+を実行して wrapper 一式を追従させる。
