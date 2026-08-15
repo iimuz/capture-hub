@@ -4,9 +4,9 @@ monorepo_root = true
 config_roots = ["android"]
 
 [tools]
-node = "24.18.0"
+node = "24.18.1"
 "npm:prettier" = "3.9.6"
-"npm:markdownlint-cli2" = "0.23.1"
+"npm:markdownlint-cli2" = "0.23.2"
 taplo = "0.10.0"
 lefthook = "2.1.10"
 
