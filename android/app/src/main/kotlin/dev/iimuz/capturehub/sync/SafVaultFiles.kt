@@ -13,8 +13,13 @@ class SafVaultFiles(
         DocumentFile.fromTreeUri(context, treeUri)
             ?: throw IOException("Cannot access vault tree: $treeUri")
 
+    // provider は要求した displayName を調整して作成することがあり、名前による
+    // 再解決は失敗しうる。作成・取得したハンドルを保持して再解決を避ける
+    private val handles = mutableMapOf<String, DocumentFile>()
+
     override fun readOrNull(fileName: String): String? {
         val file = root.findFile(fileName) ?: return null
+        handles[fileName] = file
         val input =
             context.contentResolver.openInputStream(file.uri)
                 ?: throw IOException("Cannot open $fileName for reading")
@@ -22,10 +27,9 @@ class SafVaultFiles(
     }
 
     override fun create(fileName: String) {
-        // displayName が mime に対応する拡張子を含む場合、provider は拡張子を
-        // 二重付与しない
-        root.createFile("text/markdown", fileName)
-            ?: throw IOException("Cannot create $fileName")
+        handles[fileName] =
+            root.createFile("text/markdown", fileName)
+                ?: throw IOException("Cannot create $fileName")
     }
 
     override fun append(
@@ -33,7 +37,8 @@ class SafVaultFiles(
         content: String,
     ) {
         val file =
-            root.findFile(fileName)
+            handles[fileName]
+                ?: root.findFile(fileName)
                 ?: throw IOException("$fileName not found")
         val output =
             context.contentResolver.openOutputStream(file.uri, "wa")
