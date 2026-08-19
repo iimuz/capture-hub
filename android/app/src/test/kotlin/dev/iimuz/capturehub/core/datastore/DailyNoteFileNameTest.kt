@@ -32,4 +32,11 @@ class DailyNoteFileNameTest {
         assertFalse(isValidFileNamePattern("daily/yyyy-MM-dd.md"))
         assertFalse(isValidFileNamePattern("[invalid.md"))
     }
+
+    @Test
+    fun `rejects patterns without date field`() {
+        assertFalse(isValidFileNamePattern(".md"))
+        assertFalse(isValidFileNamePattern("HH"))
+        assertFalse(isValidFileNamePattern("yyyy-MM-dd_HHmm.md"))
+    }
 }

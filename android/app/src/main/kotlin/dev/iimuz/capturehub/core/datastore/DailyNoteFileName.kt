@@ -1,5 +1,6 @@
 package dev.iimuz.capturehub.core.datastore
 
+import java.time.DateTimeException
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -21,6 +22,10 @@ fun isValidFileNamePattern(pattern: String): Boolean {
         dailyNoteFileName(LocalDate.of(2000, 1, 1), pattern)
         true
     } catch (_: IllegalArgumentException) {
+        false
+    } catch (_: DateTimeException) {
+        // 日付フィールドを含まないパターンは format 時に DateTimeException となり、
+        // IllegalArgumentException では捕捉できない
         false
     }
 }
