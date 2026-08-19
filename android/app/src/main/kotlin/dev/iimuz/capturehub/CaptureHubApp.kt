@@ -2,7 +2,7 @@ package dev.iimuz.capturehub
 
 import android.app.Application
 import android.content.Context
-import android.net.Uri
+import androidx.core.net.toUri
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.room.Room
 import androidx.work.Configuration
@@ -35,7 +35,7 @@ class CaptureHubApp :
                         settingsRepository = settingsRepository,
                         writer = DailyNoteWriter(),
                         vaultFiles = { context, uri ->
-                            SafVaultFiles(context, Uri.parse(uri))
+                            SafVaultFiles(context, uri.toUri())
                         },
                     ),
                 ).build()
