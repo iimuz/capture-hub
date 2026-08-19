@@ -3,6 +3,7 @@ package dev.iimuz.capturehub.sync
 import dev.iimuz.capturehub.core.database.CaptureEntity
 import dev.iimuz.capturehub.core.database.CaptureStatus
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.time.Clock
@@ -82,5 +83,24 @@ class DailyNoteWriterTest {
             )
         writer.append(files, "yyyy-MM-dd.md", earlier)
         assertTrue(files.files.getValue("2026-08-19.md").startsWith("## 09:05\n"))
+    }
+
+    @Test
+    fun `writes to created date file when retry crosses midnight`() {
+        // 現在時刻は 2026-08-20 09:30 JST、capture の作成は 2026-08-19 23:58 JST
+        val nextDayClock =
+            Clock.fixed(
+                Instant.parse("2026-08-20T00:30:00Z"),
+                ZoneId.of("Asia/Tokyo"),
+            )
+        val files = InMemoryVaultFiles()
+        val lateNight =
+            capture.copy(
+                createdAt = Instant.parse("2026-08-19T14:58:00Z").toEpochMilli(),
+            )
+        val result = DailyNoteWriter(nextDayClock).append(files, "yyyy-MM-dd.md", lateNight)
+        assertEquals(WriteResult.Written, result)
+        assertFalse(files.files.containsKey("2026-08-20.md"))
+        assertTrue(files.files.getValue("2026-08-19.md").startsWith("## 23:58\n"))
     }
 }
