@@ -6,6 +6,7 @@ import dev.iimuz.capturehub.MainDispatcherRule
 import dev.iimuz.capturehub.core.datastore.VaultSettingsRepository
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -44,6 +45,7 @@ class SettingsViewModelTest {
         runTest {
             val vm = viewModel()
             vm.onFolderPicked(Uri.parse("content://vault"))
+            advanceUntilIdle()
             assertEquals(listOf(Uri.parse("content://vault")), takenPermissions)
             assertEquals(1, vaultConfiguredCalls)
             val state = vm.uiState.first { it.vaultUri != null }

@@ -40,8 +40,10 @@ class SettingsViewModel(
 
     fun onFolderPicked(uri: Uri) {
         takePersistablePermission(uri)
-        viewModelScope.launch { repository.saveVaultUri(uri.toString()) }
-        onVaultConfigured()
+        viewModelScope.launch {
+            repository.saveVaultUri(uri.toString())
+            onVaultConfigured()
+        }
     }
 
     fun onFileNamePatternChange(value: String) {
