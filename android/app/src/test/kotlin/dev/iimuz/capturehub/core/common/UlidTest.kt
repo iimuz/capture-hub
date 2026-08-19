@@ -17,7 +17,7 @@ class UlidTest {
     fun `encodes known timestamp into first 10 characters`() {
         // ULID 仕様リポジトリの既知のテストベクタ
         val id = Ulid.generate(timeMillis = 1469918176385L)
-        assertEquals("01ARZ3NDEK", id.substring(0, 10))
+        assertEquals("01ARYZ6S41", id.substring(0, 10))
     }
 
     @Test
