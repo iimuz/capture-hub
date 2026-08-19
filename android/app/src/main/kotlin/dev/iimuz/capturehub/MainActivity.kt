@@ -19,6 +19,7 @@ import dev.iimuz.capturehub.feature.capture.CaptureScreen
 import dev.iimuz.capturehub.feature.capture.CaptureViewModel
 import dev.iimuz.capturehub.feature.settings.SettingsScreen
 import dev.iimuz.capturehub.feature.settings.SettingsViewModel
+import dev.iimuz.capturehub.sync.enqueueDailyNoteWrite
 
 private enum class Screen { CAPTURE, SETTINGS }
 
@@ -33,6 +34,7 @@ class MainActivity : ComponentActivity() {
                     Intent.FLAG_GRANT_WRITE_URI_PERMISSION,
             )
         }
+        enqueueDailyNoteWrite(applicationContext)
         setContent {
             CaptureHubTheme {
                 var screen by rememberSaveable { mutableStateOf(Screen.CAPTURE) }
@@ -47,7 +49,7 @@ class MainActivity : ComponentActivity() {
                                         hasPermission = { uri ->
                                             hasPersistedWritePermission(app, uri)
                                         },
-                                        onSaved = {},
+                                        onSaved = { enqueueDailyNoteWrite(applicationContext) },
                                     )
                                 }
                             },
@@ -63,7 +65,9 @@ class MainActivity : ComponentActivity() {
                                         hasPermission = { uri ->
                                             hasPersistedWritePermission(app, uri)
                                         },
-                                        onVaultConfigured = {},
+                                        onVaultConfigured = {
+                                            enqueueDailyNoteWrite(applicationContext)
+                                        },
                                     )
                                 }
                             },
