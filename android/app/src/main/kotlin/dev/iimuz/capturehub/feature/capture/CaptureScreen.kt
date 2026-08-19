@@ -2,6 +2,7 @@ package dev.iimuz.capturehub.feature.capture
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
@@ -13,6 +14,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -41,6 +43,7 @@ fun CaptureScreen(
 ) {
     val text by viewModel.text.collectAsState()
     val latest by viewModel.latest.collectAsState()
+    val vaultReady by viewModel.vaultReady.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val focusRequester = remember { FocusRequester() }
     val savedMessage = stringResource(R.string.saved)
@@ -52,6 +55,9 @@ fun CaptureScreen(
         viewModel.saveEvents.collect {
             snackbarHostState.showSnackbar(savedMessage)
         }
+    }
+    LaunchedEffect(Unit) {
+        viewModel.refreshVaultState()
     }
 
     Scaffold(
@@ -76,6 +82,28 @@ fun CaptureScreen(
                     .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
+            if (!vaultReady) {
+                Surface(
+                    color = MaterialTheme.colorScheme.errorContainer,
+                    shape = MaterialTheme.shapes.medium,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = stringResource(R.string.vault_banner_message),
+                            modifier = Modifier.weight(1f),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onErrorContainer,
+                        )
+                        TextButton(onClick = onOpenSettings) {
+                            Text(stringResource(R.string.vault_banner_action))
+                        }
+                    }
+                }
+            }
             OutlinedTextField(
                 value = text,
                 onValueChange = viewModel::onTextChange,

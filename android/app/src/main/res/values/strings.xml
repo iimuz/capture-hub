@@ -5,4 +5,13 @@
     <string name="save">Save</string>
     <string name="saved">Saved</string>
     <string name="settings">Settings</string>
+    <string name="back">Back</string>
+    <string name="vault_section">Vault</string>
+    <string name="vault_not_selected">Not selected</string>
+    <string name="choose_folder">Choose folder</string>
+    <string name="vault_permission_lost">Folder access has been lost. Choose the folder again.</string>
+    <string name="file_name_pattern_label">Daily note file name</string>
+    <string name="file_name_pattern_invalid">Invalid file name pattern</string>
+    <string name="vault_banner_message">Set up your vault folder to write notes</string>
+    <string name="vault_banner_action">Set up</string>
 </resources>

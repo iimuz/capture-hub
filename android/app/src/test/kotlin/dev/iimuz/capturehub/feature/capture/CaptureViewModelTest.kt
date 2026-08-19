@@ -3,6 +3,8 @@ package dev.iimuz.capturehub.feature.capture
 import dev.iimuz.capturehub.MainDispatcherRule
 import dev.iimuz.capturehub.core.database.CaptureStatus
 import dev.iimuz.capturehub.core.database.FakeCaptureDao
+import dev.iimuz.capturehub.core.datastore.VaultSettings
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -16,10 +18,15 @@ class CaptureViewModelTest {
 
     private val dao = FakeCaptureDao()
     private var savedCallbacks = 0
+    private val settingsFlow =
+        MutableStateFlow<VaultSettings?>(null)
+    private var permissionGranted = true
 
     private fun viewModel() =
         CaptureViewModel(
             dao = dao,
+            settings = settingsFlow,
+            hasPermission = { permissionGranted },
             onSaved = { savedCallbacks += 1 },
             newId = { "01TESTID0000000000000000AA" },
             now = { 1_000L },
@@ -68,5 +75,37 @@ class CaptureViewModelTest {
             vm.save()
             // Channel に送信済みのイベントを受信できなければ runTest がタイムアウトする
             vm.saveEvents.first()
+        }
+
+    @Test
+    fun `vaultReady becomes false when settings are missing`() =
+        runTest {
+            val vm = viewModel()
+            vm.vaultReady.first { !it }
+        }
+
+    @Test
+    fun `vaultReady becomes true when settings exist and permission persists`() =
+        runTest {
+            settingsFlow.value =
+                VaultSettings(
+                    vaultUri = "content://vault",
+                    fileNamePattern = "yyyy-MM-dd.md",
+                )
+            val vm = viewModel()
+            vm.vaultReady.first { it }
+        }
+
+    @Test
+    fun `vaultReady becomes false when permission was revoked`() =
+        runTest {
+            permissionGranted = false
+            settingsFlow.value =
+                VaultSettings(
+                    vaultUri = "content://vault",
+                    fileNamePattern = "yyyy-MM-dd.md",
+                )
+            val vm = viewModel()
+            vm.vaultReady.first { !it }
         }
 }
