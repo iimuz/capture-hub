@@ -26,7 +26,7 @@ class DailyNoteWriterTest {
             status = CaptureStatus.RECEIVED,
         )
     private val expectedBlock =
-        "## 15:42\n\ntest note\n\n<!-- capture-id: 01TESTID0000000000000000AA -->\n"
+        "### 2026-08-19T15:42:00.000+09:00\n\ntest note\n"
 
     @Test
     fun `creates file and writes block when file is missing`() {
@@ -39,10 +39,10 @@ class DailyNoteWriterTest {
     @Test
     fun `appends with blank line separator to existing content`() {
         val files = InMemoryVaultFiles()
-        files.files["2026-08-19.md"] = "## 09:00\n\nmorning\n\n<!-- capture-id: OTHER -->\n"
+        files.files["2026-08-19.md"] = "### 2026-08-19T09:00:00.000+09:00\n\nmorning\n"
         writer.append(files, "yyyy-MM-dd.md", capture)
         assertEquals(
-            "## 09:00\n\nmorning\n\n<!-- capture-id: OTHER -->\n\n" + expectedBlock,
+            "### 2026-08-19T09:00:00.000+09:00\n\nmorning\n\n" + expectedBlock,
             files.files["2026-08-19.md"],
         )
     }
@@ -59,13 +59,25 @@ class DailyNoteWriterTest {
     }
 
     @Test
-    fun `skips when capture id already exists`() {
+    fun `skips when block already exists`() {
         val files = InMemoryVaultFiles()
-        val existing = "## 09:00\n\nold\n\n<!-- capture-id: 01TESTID0000000000000000AA -->\n"
+        val existing = "### 2026-08-19T09:00:00.000+09:00\n\nold\n\n" + expectedBlock
         files.files["2026-08-19.md"] = existing
         val result = writer.append(files, "yyyy-MM-dd.md", capture)
         assertEquals(WriteResult.AlreadyWritten, result)
         assertEquals(existing, files.files["2026-08-19.md"])
+    }
+
+    @Test
+    fun `appends again when only the heading was written without the body`() {
+        val files = InMemoryVaultFiles()
+        files.files["2026-08-19.md"] = "### 2026-08-19T15:42:00.000+09:00\n\n"
+        val result = writer.append(files, "yyyy-MM-dd.md", capture)
+        assertEquals(WriteResult.Written, result)
+        assertEquals(
+            "### 2026-08-19T15:42:00.000+09:00\n\n\n" + expectedBlock,
+            files.files["2026-08-19.md"],
+        )
     }
 
     @Test
@@ -82,7 +94,9 @@ class DailyNoteWriterTest {
                 createdAt = Instant.parse("2026-08-19T00:05:00Z").toEpochMilli(),
             )
         writer.append(files, "yyyy-MM-dd.md", earlier)
-        assertTrue(files.files.getValue("2026-08-19.md").startsWith("## 09:05\n"))
+        assertTrue(
+            files.files.getValue("2026-08-19.md").startsWith("### 2026-08-19T09:05:00.000+09:00\n"),
+        )
     }
 
     @Test
@@ -101,6 +115,8 @@ class DailyNoteWriterTest {
         val result = DailyNoteWriter(nextDayClock).append(files, "yyyy-MM-dd.md", lateNight)
         assertEquals(WriteResult.Written, result)
         assertFalse(files.files.containsKey("2026-08-20.md"))
-        assertTrue(files.files.getValue("2026-08-19.md").startsWith("## 23:58\n"))
+        assertTrue(
+            files.files.getValue("2026-08-19.md").startsWith("### 2026-08-19T23:58:00.000+09:00\n"),
+        )
     }
 }

@@ -4,7 +4,7 @@ import dev.iimuz.capturehub.core.database.CaptureEntity
 import dev.iimuz.capturehub.core.datastore.dailyNoteFileName
 import java.time.Clock
 import java.time.Instant
-import java.time.LocalTime
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 interface VaultFiles {
@@ -45,11 +45,13 @@ class DailyNoteWriter(
                     .atZone(clock.zone)
             val fileName = dailyNoteFileName(createdAt.toLocalDate(), fileNamePattern)
             val existing = files.readOrNull(fileName)
-            if (existing != null && existing.contains("capture-id: ${capture.id} -->")) {
+            val block = renderBlock(createdAt, capture.text)
+            // ブロック全体の一致を見ることで、見出しのみで本文が欠けた不完全な書き込み
+            // (書き込み中断など) を「済」と誤判定しないようにする
+            if (existing != null && existing.contains(block)) {
                 return WriteResult.AlreadyWritten
             }
             if (existing == null) files.create(fileName)
-            val block = renderBlock(createdAt.toLocalTime(), capture.text, capture.id)
             val payload =
                 when {
                     existing.isNullOrEmpty() -> block
@@ -64,12 +66,10 @@ class DailyNoteWriter(
     }
 }
 
-private val headingFormatter = DateTimeFormatter.ofPattern("HH:mm")
+// ISO_OFFSET_DATE_TIME は端数 0 のミリ秒を省略してしまうため使わない
+private val headingFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
 
 fun renderBlock(
-    time: LocalTime,
+    createdAt: ZonedDateTime,
     text: String,
-    captureId: String,
-): String =
-    "## " + time.format(headingFormatter) + "\n\n" + text +
-        "\n\n<!-- capture-id: " + captureId + " -->\n"
+): String = "### " + createdAt.format(headingFormatter) + "\n\n" + text + "\n"

@@ -108,8 +108,8 @@ class DailyNoteWriteWorkerTest {
             assertEquals(CaptureStatus.WRITTEN, dao.findById("a")?.status)
             assertEquals(CaptureStatus.WRITTEN, dao.findById("b")?.status)
             val content = files.files.values.single()
-            assertTrue(content.contains("capture-id: a -->"))
-            assertTrue(content.contains("capture-id: b -->"))
+            assertTrue(content.contains("text-a"))
+            assertTrue(content.contains("text-b"))
         }
 
     @Test
