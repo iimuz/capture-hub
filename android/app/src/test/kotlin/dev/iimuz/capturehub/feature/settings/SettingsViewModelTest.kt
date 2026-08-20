@@ -28,13 +28,6 @@ class SettingsViewModelTest {
     private var writeSettingsChangedCalls = 0
     private lateinit var repository: VaultSettingsRepository
 
-    // ViewModel の delay() は Dispatchers.Main (MainDispatcherRule 固有の
-    // スケジューラ) 上で走るため、runTest 自身のスケジューラとは別に進める必要がある
-    private fun TestScope.advancePastPatternSaveDebounce() {
-        mainDispatcherRule.dispatcher.scheduler.advanceUntilIdle()
-        advanceUntilIdle()
-    }
-
     private fun TestScope.viewModel(hasPermission: Boolean = true): SettingsViewModel {
         val dataStore =
             PreferenceDataStoreFactory.create(scope = backgroundScope) {
@@ -72,74 +65,82 @@ class SettingsViewModelTest {
         }
 
     @Test
-    fun `invalid pattern is flagged and not saved`() =
+    fun `uiState reflects the stored pattern before any typing`() =
         runTest {
             val vm = viewModel()
-            vm.onFolderPicked(Uri.parse("content://vault"))
-            vm.onFileNamePatternChange("[bad.md")
-            val state = vm.uiState.first { it.patternInvalid }
-            assertTrue(state.patternInvalid)
-            assertEquals("YYYY-MM-DD.md", state.fileNamePattern)
-        }
-
-    @Test
-    fun `valid pattern change saves and invokes callback after save`() =
-        runTest {
-            val vm = viewModel()
-            // repository へ直接書き込み、ViewModel からの2回目の書き込みが発生する
-            // 状況を避ける (viewModelScope 経由の DataStore 書き込みを2回連続で
-            // 行うと、テスト用ディスパッチャの構成上 advanceUntilIdle では解決しない)。
             repository.saveVaultUri("content://vault")
+            repository.saveFileNamePattern("[note]YYYY-MM-DD.md")
 
-            vm.onFileNamePatternChange("[note]YYYY-MM-DD.md")
-            advancePastPatternSaveDebounce()
-
-            assertEquals(1, writeSettingsChangedCalls)
             val state = vm.uiState.first { it.fileNamePattern == "[note]YYYY-MM-DD.md" }
             assertFalse(state.patternInvalid)
         }
 
     @Test
-    fun `three rapid valid pattern changes save once with the last value`() =
-        runTest {
-            val vm = viewModel()
-            repository.saveVaultUri("content://vault")
-
-            vm.onFileNamePatternChange("[a]YYYY-MM-DD.md")
-            vm.onFileNamePatternChange("[ab]YYYY-MM-DD.md")
-            vm.onFileNamePatternChange("[abc]YYYY-MM-DD.md")
-            advancePastPatternSaveDebounce()
-
-            assertEquals(1, writeSettingsChangedCalls)
-            val state = vm.uiState.first { it.fileNamePattern == "[abc]YYYY-MM-DD.md" }
-            assertFalse(state.patternInvalid)
-        }
-
-    @Test
-    fun `invalid input during debounce window cancels the pending save`() =
+    fun `typing a valid pattern updates uiState but does not save or notify`() =
         runTest {
             val vm = viewModel()
             repository.saveVaultUri("content://vault")
 
             vm.onFileNamePatternChange("[note]YYYY-MM-DD.md")
-            vm.onFileNamePatternChange("[bad.md")
-            advancePastPatternSaveDebounce()
+            val state = vm.uiState.first { it.fileNamePattern == "[note]YYYY-MM-DD.md" }
 
+            assertFalse(state.patternInvalid)
             assertEquals(0, writeSettingsChangedCalls)
-            val state = vm.uiState.first { it.patternInvalid }
-            assertTrue(state.patternInvalid)
-            assertEquals("YYYY-MM-DD.md", state.fileNamePattern)
+            assertEquals("YYYY-MM-DD.md", repository.settings.first()?.fileNamePattern)
         }
 
     @Test
-    fun `invalid pattern change neither saves nor invokes callback`() =
+    fun `typing an invalid pattern flags it without saving or notifying`() =
         runTest {
             val vm = viewModel()
+            repository.saveVaultUri("content://vault")
+
             vm.onFileNamePatternChange("[bad.md")
-            advancePastPatternSaveDebounce()
+            val state = vm.uiState.first { it.patternInvalid }
+
+            assertEquals("[bad.md", state.fileNamePattern)
+            assertEquals(0, writeSettingsChangedCalls)
+            assertEquals("YYYY-MM-DD.md", repository.settings.first()?.fileNamePattern)
+        }
+
+    @Test
+    fun `onSaveClicked with a valid draft saves once and notifies once`() =
+        runTest {
+            val vm = viewModel()
+            repository.saveVaultUri("content://vault")
+
+            vm.onFileNamePatternChange("[note]YYYY-MM-DD.md")
+            vm.onSaveClicked()
+            advanceUntilIdle()
+
+            assertEquals(1, writeSettingsChangedCalls)
+            assertEquals("[note]YYYY-MM-DD.md", repository.settings.first()?.fileNamePattern)
+        }
+
+    @Test
+    fun `onSaveClicked with an invalid draft does not save or notify`() =
+        runTest {
+            val vm = viewModel()
+            repository.saveVaultUri("content://vault")
+
+            vm.onFileNamePatternChange("[bad.md")
+            vm.onSaveClicked()
+            advanceUntilIdle()
 
             assertEquals(0, writeSettingsChangedCalls)
-            val state = vm.uiState.first { it.patternInvalid }
-            assertTrue(state.patternInvalid)
+            assertEquals("YYYY-MM-DD.md", repository.settings.first()?.fileNamePattern)
+        }
+
+    @Test
+    fun `onSaveClicked before any typing is a no-op`() =
+        runTest {
+            val vm = viewModel()
+            repository.saveVaultUri("content://vault")
+
+            vm.onSaveClicked()
+            advanceUntilIdle()
+
+            assertEquals(0, writeSettingsChangedCalls)
+            assertEquals("YYYY-MM-DD.md", repository.settings.first()?.fileNamePattern)
         }
 }

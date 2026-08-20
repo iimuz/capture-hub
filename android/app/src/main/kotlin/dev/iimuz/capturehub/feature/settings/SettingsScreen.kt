@@ -18,9 +18,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -39,8 +36,6 @@ fun SettingsScreen(
         ) { uri ->
             if (uri != null) viewModel.onFolderPicked(uri)
         }
-    // 編集開始後はローカル値を優先し、DataStore 反映待ちでカーソルが飛ぶのを防ぐ
-    var editedPattern by rememberSaveable { mutableStateOf<String?>(null) }
 
     Scaffold(
         topBar = {
@@ -82,11 +77,8 @@ fun SettingsScreen(
                 Text(stringResource(R.string.choose_folder))
             }
             OutlinedTextField(
-                value = editedPattern ?: state.fileNamePattern,
-                onValueChange = {
-                    editedPattern = it
-                    viewModel.onFileNamePatternChange(it)
-                },
+                value = state.fileNamePattern,
+                onValueChange = { viewModel.onFileNamePatternChange(it) },
                 modifier = Modifier.fillMaxWidth(),
                 label = { Text(stringResource(R.string.file_name_pattern_label)) },
                 isError = state.patternInvalid,
@@ -97,6 +89,12 @@ fun SettingsScreen(
                 },
                 singleLine = true,
             )
+            Button(
+                onClick = { viewModel.onSaveClicked() },
+                enabled = !state.patternInvalid,
+            ) {
+                Text(stringResource(R.string.save))
+            }
         }
     }
 }
