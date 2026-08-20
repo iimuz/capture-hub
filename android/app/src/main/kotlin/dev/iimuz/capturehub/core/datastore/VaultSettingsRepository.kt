@@ -23,7 +23,11 @@ class VaultSettingsRepository(
             val uri = preferences[KEY_VAULT_URI] ?: return@map null
             VaultSettings(
                 vaultUri = uri,
-                fileNamePattern = preferences[KEY_FILE_NAME_PATTERN] ?: DEFAULT_FILE_NAME_PATTERN,
+                // パターン構文が moment 風トークンへ変更される前に保存された値は
+                // 新パーサーで無効になり得るため、無効な保存値は既定値へフォールバックする。
+                fileNamePattern =
+                    preferences[KEY_FILE_NAME_PATTERN]?.takeIf { isValidFileNamePattern(it) }
+                        ?: DEFAULT_FILE_NAME_PATTERN,
             )
         }
 

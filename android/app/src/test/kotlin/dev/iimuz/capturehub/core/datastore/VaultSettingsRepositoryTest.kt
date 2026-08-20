@@ -42,7 +42,16 @@ class VaultSettingsRepositoryTest {
         runTest {
             val repository = repository()
             repository.saveVaultUri("content://vault")
-            repository.saveFileNamePattern("yyyyMMdd.md")
-            assertEquals("yyyyMMdd.md", repository.settings.first()?.fileNamePattern)
+            repository.saveFileNamePattern("[note]YYYY-MM-DD.md")
+            assertEquals("[note]YYYY-MM-DD.md", repository.settings.first()?.fileNamePattern)
+        }
+
+    @Test
+    fun `invalid stored pattern falls back to default`() =
+        runTest {
+            val repository = repository()
+            repository.saveVaultUri("content://vault")
+            repository.saveFileNamePattern("yyyy-MM-dd.md")
+            assertEquals(DEFAULT_FILE_NAME_PATTERN, repository.settings.first()?.fileNamePattern)
         }
 }

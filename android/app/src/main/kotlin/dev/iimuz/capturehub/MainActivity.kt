@@ -65,7 +65,7 @@ class MainActivity : ComponentActivity() {
                                         hasPermission = { uri ->
                                             hasPersistedWritePermission(app, uri)
                                         },
-                                        onVaultConfigured = {
+                                        onWriteSettingsChanged = {
                                             enqueueDailyNoteWrite(applicationContext)
                                         },
                                     )

@@ -17,7 +17,7 @@ class SettingsViewModel(
     private val repository: VaultSettingsRepository,
     private val takePersistablePermission: (Uri) -> Unit,
     private val hasPermission: (String) -> Boolean,
-    private val onVaultConfigured: () -> Unit,
+    private val onWriteSettingsChanged: () -> Unit,
 ) : ViewModel() {
     data class UiState(
         val vaultUri: String? = null,
@@ -42,7 +42,7 @@ class SettingsViewModel(
         takePersistablePermission(uri)
         viewModelScope.launch {
             repository.saveVaultUri(uri.toString())
-            onVaultConfigured()
+            onWriteSettingsChanged()
         }
     }
 
@@ -50,7 +50,10 @@ class SettingsViewModel(
         val valid = isValidFileNamePattern(value)
         patternInvalid.value = !valid
         if (valid) {
-            viewModelScope.launch { repository.saveFileNamePattern(value) }
+            viewModelScope.launch {
+                repository.saveFileNamePattern(value)
+                onWriteSettingsChanged()
+            }
         }
     }
 }

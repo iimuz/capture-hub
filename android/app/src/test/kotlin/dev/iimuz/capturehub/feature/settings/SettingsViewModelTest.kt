@@ -25,18 +25,20 @@ class SettingsViewModelTest {
     val tmp = org.junit.rules.TemporaryFolder()
 
     private val takenPermissions = mutableListOf<Uri>()
-    private var vaultConfiguredCalls = 0
+    private var writeSettingsChangedCalls = 0
+    private lateinit var repository: VaultSettingsRepository
 
     private fun TestScope.viewModel(hasPermission: Boolean = true): SettingsViewModel {
         val dataStore =
             PreferenceDataStoreFactory.create(scope = backgroundScope) {
                 tmp.newFolder().resolve("settings.preferences_pb")
             }
+        repository = VaultSettingsRepository(dataStore)
         return SettingsViewModel(
-            repository = VaultSettingsRepository(dataStore),
+            repository = repository,
             takePersistablePermission = { takenPermissions += it },
             hasPermission = { hasPermission },
-            onVaultConfigured = { vaultConfiguredCalls += 1 },
+            onWriteSettingsChanged = { writeSettingsChangedCalls += 1 },
         )
     }
 
@@ -47,7 +49,7 @@ class SettingsViewModelTest {
             vm.onFolderPicked(Uri.parse("content://vault"))
             advanceUntilIdle()
             assertEquals(listOf(Uri.parse("content://vault")), takenPermissions)
-            assertEquals(1, vaultConfiguredCalls)
+            assertEquals(1, writeSettingsChangedCalls)
             val state = vm.uiState.first { it.vaultUri != null }
             assertEquals("content://vault", state.vaultUri)
             assertFalse(state.permissionLost)
@@ -71,5 +73,34 @@ class SettingsViewModelTest {
             val state = vm.uiState.first { it.patternInvalid }
             assertTrue(state.patternInvalid)
             assertEquals("YYYY-MM-DD.md", state.fileNamePattern)
+        }
+
+    @Test
+    fun `valid pattern change saves and invokes callback after save`() =
+        runTest {
+            val vm = viewModel()
+            // repository へ直接書き込み、ViewModel からの2回目の書き込みが発生する
+            // 状況を避ける (viewModelScope 経由の DataStore 書き込みを2回連続で
+            // 行うと、テスト用ディスパッチャの構成上 advanceUntilIdle では解決しない)。
+            repository.saveVaultUri("content://vault")
+
+            vm.onFileNamePatternChange("[note]YYYY-MM-DD.md")
+            advanceUntilIdle()
+
+            assertEquals(1, writeSettingsChangedCalls)
+            val state = vm.uiState.first { it.fileNamePattern == "[note]YYYY-MM-DD.md" }
+            assertFalse(state.patternInvalid)
+        }
+
+    @Test
+    fun `invalid pattern change neither saves nor invokes callback`() =
+        runTest {
+            val vm = viewModel()
+            vm.onFileNamePatternChange("[bad.md")
+            advanceUntilIdle()
+
+            assertEquals(0, writeSettingsChangedCalls)
+            val state = vm.uiState.first { it.patternInvalid }
+            assertTrue(state.patternInvalid)
         }
 }
