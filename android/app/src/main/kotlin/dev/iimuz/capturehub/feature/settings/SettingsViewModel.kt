@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import dev.iimuz.capturehub.core.datastore.DEFAULT_FILE_NAME_PATTERN
 import dev.iimuz.capturehub.core.datastore.VaultSettingsRepository
 import dev.iimuz.capturehub.core.datastore.isValidFileNamePattern
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -27,6 +29,7 @@ class SettingsViewModel(
     )
 
     private val patternInvalid = MutableStateFlow(false)
+    private var saveJob: Job? = null
 
     val uiState: StateFlow<UiState> =
         combine(repository.settings, patternInvalid) { settings, invalid ->
@@ -49,11 +52,22 @@ class SettingsViewModel(
     fun onFileNamePatternChange(value: String) {
         val valid = isValidFileNamePattern(value)
         patternInvalid.value = !valid
+        // 直前の入力に紐づく保存を必ず打ち切る。無効な値へ変わった場合も、
+        // 古い有効値を 500ms 後に保存してしまわないよう破棄する
+        saveJob?.cancel()
         if (valid) {
-            viewModelScope.launch {
-                repository.saveFileNamePattern(value)
-                onWriteSettingsChanged()
-            }
+            saveJob =
+                viewModelScope.launch {
+                    delay(PATTERN_SAVE_DEBOUNCE_MILLIS)
+                    repository.saveFileNamePattern(value)
+                    onWriteSettingsChanged()
+                }
         }
+    }
+
+    private companion object {
+        // キー入力のたびに DataStore への保存と WorkManager への enqueue が
+        // 走るのを避けるためのデバウンス時間
+        const val PATTERN_SAVE_DEBOUNCE_MILLIS = 500L
     }
 }

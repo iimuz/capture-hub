@@ -13,6 +13,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import androidx.work.ExistingWorkPolicy
 import dev.iimuz.capturehub.core.datastore.hasPersistedWritePermission
 import dev.iimuz.capturehub.core.designsystem.CaptureHubTheme
 import dev.iimuz.capturehub.feature.capture.CaptureScreen
@@ -66,7 +67,14 @@ class MainActivity : ComponentActivity() {
                                             hasPersistedWritePermission(app, uri)
                                         },
                                         onWriteSettingsChanged = {
-                                            enqueueDailyNoteWrite(applicationContext)
+                                            // バックオフ待機中のチェーンを破棄し、設定修正が
+                                            // 即座に反映されるようにする。append は全文一致で
+                                            // 冪等なため、稀に実行中のジョブを打ち切っても
+                                            // 重複ブロックにはならない
+                                            enqueueDailyNoteWrite(
+                                                applicationContext,
+                                                ExistingWorkPolicy.REPLACE,
+                                            )
                                         },
                                     )
                                 }

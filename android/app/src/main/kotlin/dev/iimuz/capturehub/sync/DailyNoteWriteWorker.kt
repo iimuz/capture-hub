@@ -55,7 +55,10 @@ class DailyNoteWriteWorker(
     }
 }
 
-fun enqueueDailyNoteWrite(context: Context) {
+fun enqueueDailyNoteWrite(
+    context: Context,
+    policy: ExistingWorkPolicy = ExistingWorkPolicy.APPEND_OR_REPLACE,
+) {
     val request =
         OneTimeWorkRequestBuilder<DailyNoteWriteWorker>()
             .setBackoffCriteria(
@@ -65,7 +68,7 @@ fun enqueueDailyNoteWrite(context: Context) {
             ).build()
     WorkManager.getInstance(context).enqueueUniqueWork(
         DailyNoteWriteWorker.UNIQUE_WORK_NAME,
-        ExistingWorkPolicy.APPEND_OR_REPLACE,
+        policy,
         request,
     )
 }
