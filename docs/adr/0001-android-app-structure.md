@@ -12,8 +12,7 @@ supersedes: []
 capture-hub の Android MVP (テキスト入力を Room durable queue へ保存し、
 SAF で Obsidian Daily Note へ追記する) の実装にあたり、コード構成の方針が
 必要になった。将来は音声入力、文字起こし、LLM 整形、Wear OS 連携、
-Even G2 ブリッジ、Queue 一覧画面などの拡張を予定している
-(docs/reports/2026-08-06-capture-hub-research.md)。
+Even G2 ブリッジ、Queue 一覧画面などの拡張を予定している。
 
 検討した選択肢とトレードオフ:
 
