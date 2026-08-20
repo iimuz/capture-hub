@@ -1,30 +1,104 @@
 package dev.iimuz.capturehub
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import androidx.work.ExistingWorkPolicy
+import dev.iimuz.capturehub.core.datastore.hasPersistedWritePermission
+import dev.iimuz.capturehub.core.designsystem.CaptureHubTheme
+import dev.iimuz.capturehub.feature.capture.CaptureScreen
+import dev.iimuz.capturehub.feature.capture.CaptureViewModel
+import dev.iimuz.capturehub.feature.settings.SettingsScreen
+import dev.iimuz.capturehub.feature.settings.SettingsViewModel
+import dev.iimuz.capturehub.sync.enqueueDailyNoteWrite
+
+private enum class Screen { CAPTURE, SETTINGS }
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val app = application as CaptureHubApp
+        val takePermission: (Uri) -> Unit = { uri ->
+            contentResolver.takePersistableUriPermission(
+                uri,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                    Intent.FLAG_GRANT_WRITE_URI_PERMISSION,
+            )
+        }
+        enqueueDailyNoteWrite(applicationContext)
         setContent {
-            MaterialTheme {
-                Surface(modifier = Modifier.fillMaxSize()) {
-                    AppPlaceholder()
+            CaptureHubTheme {
+                var screen by rememberSaveable { mutableStateOf(Screen.CAPTURE) }
+                val captureViewModel: CaptureViewModel =
+                    viewModel(
+                        factory =
+                            viewModelFactory {
+                                initializer {
+                                    CaptureViewModel(
+                                        dao = app.database.captureDao(),
+                                        settings = app.settingsRepository.settings,
+                                        hasPermission = { uri ->
+                                            hasPersistedWritePermission(app, uri)
+                                        },
+                                        onSaved = { enqueueDailyNoteWrite(applicationContext) },
+                                    )
+                                }
+                            },
+                    )
+                val settingsViewModel: SettingsViewModel =
+                    viewModel(
+                        factory =
+                            viewModelFactory {
+                                initializer {
+                                    SettingsViewModel(
+                                        repository = app.settingsRepository,
+                                        takePersistablePermission = takePermission,
+                                        hasPermission = { uri ->
+                                            hasPersistedWritePermission(app, uri)
+                                        },
+                                        onWriteSettingsChanged = {
+                                            // バックオフ待機中のチェーンを破棄し、設定修正が
+                                            // 即座に反映されるようにする。append は全文一致で
+                                            // 冪等なため、稀に実行中のジョブを打ち切っても
+                                            // 重複ブロックにはならない
+                                            enqueueDailyNoteWrite(
+                                                applicationContext,
+                                                ExistingWorkPolicy.REPLACE,
+                                            )
+                                        },
+                                    )
+                                }
+                            },
+                    )
+                BackHandler(enabled = screen == Screen.SETTINGS) {
+                    screen = Screen.CAPTURE
+                }
+                when (screen) {
+                    Screen.CAPTURE -> {
+                        CaptureScreen(
+                            viewModel = captureViewModel,
+                            onOpenSettings = { screen = Screen.SETTINGS },
+                        )
+                    }
+
+                    Screen.SETTINGS -> {
+                        SettingsScreen(
+                            viewModel = settingsViewModel,
+                            onBack = { screen = Screen.CAPTURE },
+                        )
+                    }
                 }
             }
         }
     }
-}
-
-@Composable
-private fun AppPlaceholder() {
-    Text(text = stringResource(R.string.app_name))
 }
