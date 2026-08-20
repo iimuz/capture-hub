@@ -31,7 +31,7 @@ class DailyNoteWriterTest {
     @Test
     fun `creates file and writes block when file is missing`() {
         val files = InMemoryVaultFiles()
-        val result = writer.append(files, "yyyy-MM-dd.md", capture)
+        val result = writer.append(files, "YYYY-MM-DD.md", capture)
         assertEquals(WriteResult.Written, result)
         assertEquals(expectedBlock, files.files["2026-08-19.md"])
     }
@@ -40,7 +40,7 @@ class DailyNoteWriterTest {
     fun `appends with blank line separator to existing content`() {
         val files = InMemoryVaultFiles()
         files.files["2026-08-19.md"] = "### 2026-08-19T09:00:00.000+09:00\n\nmorning\n"
-        writer.append(files, "yyyy-MM-dd.md", capture)
+        writer.append(files, "YYYY-MM-DD.md", capture)
         assertEquals(
             "### 2026-08-19T09:00:00.000+09:00\n\nmorning\n\n" + expectedBlock,
             files.files["2026-08-19.md"],
@@ -51,7 +51,7 @@ class DailyNoteWriterTest {
     fun `restores trailing newline before appending`() {
         val files = InMemoryVaultFiles()
         files.files["2026-08-19.md"] = "no trailing newline"
-        writer.append(files, "yyyy-MM-dd.md", capture)
+        writer.append(files, "YYYY-MM-DD.md", capture)
         assertEquals(
             "no trailing newline\n\n" + expectedBlock,
             files.files["2026-08-19.md"],
@@ -63,7 +63,7 @@ class DailyNoteWriterTest {
         val files = InMemoryVaultFiles()
         val existing = "### 2026-08-19T09:00:00.000+09:00\n\nold\n\n" + expectedBlock
         files.files["2026-08-19.md"] = existing
-        val result = writer.append(files, "yyyy-MM-dd.md", capture)
+        val result = writer.append(files, "YYYY-MM-DD.md", capture)
         assertEquals(WriteResult.AlreadyWritten, result)
         assertEquals(existing, files.files["2026-08-19.md"])
     }
@@ -72,7 +72,7 @@ class DailyNoteWriterTest {
     fun `appends again when only the heading was written without the body`() {
         val files = InMemoryVaultFiles()
         files.files["2026-08-19.md"] = "### 2026-08-19T15:42:00.000+09:00\n\n"
-        val result = writer.append(files, "yyyy-MM-dd.md", capture)
+        val result = writer.append(files, "YYYY-MM-DD.md", capture)
         assertEquals(WriteResult.Written, result)
         assertEquals(
             "### 2026-08-19T15:42:00.000+09:00\n\n\n" + expectedBlock,
@@ -82,7 +82,7 @@ class DailyNoteWriterTest {
 
     @Test
     fun `returns failed when vault is unreachable`() {
-        val result = writer.append(FailingVaultFiles(), "yyyy-MM-dd.md", capture)
+        val result = writer.append(FailingVaultFiles(), "YYYY-MM-DD.md", capture)
         assertTrue(result is WriteResult.Failed)
     }
 
@@ -93,7 +93,7 @@ class DailyNoteWriterTest {
             capture.copy(
                 createdAt = Instant.parse("2026-08-19T00:05:00Z").toEpochMilli(),
             )
-        writer.append(files, "yyyy-MM-dd.md", earlier)
+        writer.append(files, "YYYY-MM-DD.md", earlier)
         assertTrue(
             files.files.getValue("2026-08-19.md").startsWith("### 2026-08-19T09:05:00.000+09:00\n"),
         )
@@ -112,7 +112,7 @@ class DailyNoteWriterTest {
             capture.copy(
                 createdAt = Instant.parse("2026-08-19T14:58:00Z").toEpochMilli(),
             )
-        val result = DailyNoteWriter(nextDayClock).append(files, "yyyy-MM-dd.md", lateNight)
+        val result = DailyNoteWriter(nextDayClock).append(files, "YYYY-MM-DD.md", lateNight)
         assertEquals(WriteResult.Written, result)
         assertFalse(files.files.containsKey("2026-08-20.md"))
         assertTrue(

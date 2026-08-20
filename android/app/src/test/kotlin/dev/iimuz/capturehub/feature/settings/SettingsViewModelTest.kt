@@ -70,6 +70,6 @@ class SettingsViewModelTest {
             vm.onFileNamePatternChange("[bad.md")
             val state = vm.uiState.first { it.patternInvalid }
             assertTrue(state.patternInvalid)
-            assertEquals("yyyy-MM-dd.md", state.fileNamePattern)
+            assertEquals("YYYY-MM-DD.md", state.fileNamePattern)
         }
 }

@@ -90,7 +90,7 @@ class CaptureViewModelTest {
             settingsFlow.value =
                 VaultSettings(
                     vaultUri = "content://vault",
-                    fileNamePattern = "yyyy-MM-dd.md",
+                    fileNamePattern = "YYYY-MM-DD.md",
                 )
             val vm = viewModel()
             vm.vaultReady.first { it }
@@ -103,7 +103,7 @@ class CaptureViewModelTest {
             settingsFlow.value =
                 VaultSettings(
                     vaultUri = "content://vault",
-                    fileNamePattern = "yyyy-MM-dd.md",
+                    fileNamePattern = "YYYY-MM-DD.md",
                 )
             val vm = viewModel()
             vm.vaultReady.first { !it }

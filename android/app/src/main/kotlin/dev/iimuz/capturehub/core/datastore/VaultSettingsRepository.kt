@@ -8,7 +8,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-const val DEFAULT_FILE_NAME_PATTERN = "yyyy-MM-dd.md"
+const val DEFAULT_FILE_NAME_PATTERN = "YYYY-MM-DD.md"
 
 data class VaultSettings(
     val vaultUri: String,
