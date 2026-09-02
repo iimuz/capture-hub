@@ -1,8 +1,9 @@
+[settings.npm]
+package_manager = "npm"
+
 [tools]
 java = "temurin-21.0.12+8.0.LTS"
-jq = "1.8.2"
 ktlint = "1.8.0"
-"npm:@bitwarden/cli" = "2026.8.0"
 
 [tasks.setup]
 description = "Set up the Android development environment"
@@ -30,6 +31,7 @@ run = "./gradlew test"
 [tasks.release]
 description = "Build a signed release APK using the Bitwarden-managed signing key"
 depends = ["setup"]
+tools = { jq = "1.8.2", "npm:@bitwarden/cli" = "2026.8.0" }
 run = "./scripts/release.sh"
 
 [tasks.clean]

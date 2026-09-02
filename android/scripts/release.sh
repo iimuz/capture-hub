@@ -6,7 +6,14 @@ set -eu
 bw_bin="${BW_BIN:-bw}"
 item_name="capture-hub-release-keystore"
 
-status=$("$bw_bin" status | jq -r .status)
+if ! status_json=$("$bw_bin" status) || ! status=$(printf '%s' "$status_json" | jq -r .status 2>/dev/null); then
+  echo "Bitwarden CLI failed to report status; run 'bw status' directly to see the underlying error" >&2
+  exit 1
+fi
+if [ "$status" != "unauthenticated" ] && [ "$status" != "locked" ] && [ "$status" != "unlocked" ]; then
+  echo "Bitwarden CLI failed to report status; run 'bw status' directly to see the underlying error" >&2
+  exit 1
+fi
 if [ "$status" = "unauthenticated" ]; then
   echo "Bitwarden is not logged in. Run: bw login" >&2
   exit 1
