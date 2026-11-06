@@ -137,3 +137,7 @@ depends = ["//android:build"]
 [tasks.test]
 description = "Run tests for all components"
 depends = ["//android:test"]
+
+[tasks.release]
+description = "Build the release artifacts for all components"
+depends = ["//android:release"]

@@ -1,5 +1,11 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
+fun requireSigningEnv(name: String): String =
+    System.getenv(name)
+        ?: throw GradleException(
+            "$name must be set when CAPTURE_HUB_KEYSTORE_FILE is set",
+        )
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -19,9 +25,22 @@ android {
         versionName = "0.1.0"
     }
 
+    signingConfigs {
+        val keystorePath = System.getenv("CAPTURE_HUB_KEYSTORE_FILE")
+        if (keystorePath != null) {
+            create("release") {
+                storeFile = file(keystorePath)
+                storePassword = requireSigningEnv("CAPTURE_HUB_KEYSTORE_PASSWORD")
+                keyAlias = requireSigningEnv("CAPTURE_HUB_KEY_ALIAS")
+                keyPassword = requireSigningEnv("CAPTURE_HUB_KEY_PASSWORD")
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.findByName("release")
         }
     }
 
