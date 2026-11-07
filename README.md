@@ -56,7 +56,7 @@ Android Studio などで導入した SDK を `android/local.properties` から
 
 ### Renovate
 
-Renovate はこのリポジトリの workflow ではなく、リポジトリの外から GitHub App の権限で動く。
+Renovate はリポジトリの外から GitHub App の権限で動く。
 依存の更新の規則は `renovate.json` に書き、Renovate は実行のたびにそれを読む。
 新しい更新の PR と lock ファイルの保守の PR は日本時間の土曜に作られ、取り込まれていない PR はほかの曜日にも更新される。
 脆弱性の修正の PR は曜日を問わず作られる。
