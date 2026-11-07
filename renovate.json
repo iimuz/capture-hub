@@ -3,6 +3,12 @@
   "extends": ["config:best-practices", "helpers:pinGitHubActionDigests"],
   "ignorePresets": ["security:minimumReleaseAgeNpm"],
   "dependencyDashboard": false,
+  "timezone": "Asia/Tokyo",
+  "schedule": ["* * * * 6"],
+  "lockFileMaintenance": {
+    "schedule": ["* * * * 6"],
+    "automerge": true
+  },
   "minimumReleaseAge": "14 days",
   "statusCheckNames": {
     "minimumReleaseAge": null
