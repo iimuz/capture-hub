@@ -6,7 +6,7 @@ config_roots = ["android"]
 [tools]
 node = "24.22.0"
 "npm:prettier" = "3.9.10"
-"npm:markdownlint-cli2" = "0.23.3"
+"npm:markdownlint-cli2" = "0.24.0"
 taplo = "0.10.0"
 lefthook = "2.2.2"
 
